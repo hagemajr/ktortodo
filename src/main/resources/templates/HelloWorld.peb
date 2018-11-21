@@ -93,5 +93,12 @@
         </div>
     </div>
 </div>
+<footer class="footer">
+    <div class="content has-text-centered">
+        <p>
+            A POC by John Hageman
+        </p>
+    </div>
+</footer>
 </body>
 </html>
