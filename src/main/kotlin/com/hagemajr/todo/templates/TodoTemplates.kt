@@ -4,7 +4,6 @@ import com.hagemajr.todo.models.Todo
 import io.ktor.html.*
 import kotlinx.html.HTML
 import kotlinx.html.*
-import org.intellij.lang.annotations.Flow
 
 
 class MulticolumnTemplate(val main: MainTemplate = MainTemplate()) : Template<HTML> {
@@ -18,17 +17,17 @@ class MulticolumnTemplate(val main: MainTemplate = MainTemplate()) : Template<HT
     override fun HTML.apply() {
         insert(main) {
             header {
-                headerTitle { +"ToDo List"}
-                headerSubtitle { +"My Todo Implementation"}
+                headerTitle = "Overridden title"
             }
             appBody {
                 todoItems{
                     todos = todoList
                 }
             }
-            footer {
-                footerContent { +"A POC by John Hageman" }
-            }
+            // Only need to include if overriding defaults
+            //footer {
+            //  footerContent { +"A POC by John Hageman" }
+            //}
         }
     }
 }
@@ -53,18 +52,18 @@ class MainTemplate : Template<HTML> {
 }
 
 class HeaderTemplate : Template<FlowContent> {
-    val headerTitle = Placeholder<HtmlBlockTag>()
-    val headerSubtitle = Placeholder<HtmlBlockTag>()
+    var headerTitle = "ToDo List"
+    var headerSubtitle = "My Todo Implementation"
     override fun FlowContent.apply() {
 
         section(classes = "hero is-info is-bold is-rounded") {
             div(classes = "hero-body") {
                 div("container") {
                     h1("title") {
-                        insert(headerTitle)
+                        +headerTitle
                     }
                     h2("subtitle") {
-                        insert(headerSubtitle)
+                        +headerSubtitle
                     }
                 }
             }
@@ -144,12 +143,12 @@ class InputTemplate : Template<FlowContent>{
 }
 
 class FooterTemplate : Template<FlowContent>{
-    val footerContent = Placeholder<HtmlBlockTag>()
+    val footerContent = "A POC by John Hageman"
     override fun FlowContent.apply(){
         footer(classes = "footer") {
             div(classes = "content has-text-centered"){
                 p {
-                    insert(footerContent)
+                    +footerContent
                 }
             }
         }
