@@ -33,16 +33,7 @@ fun Routing.demo2(dao : TodoDAO) {
 fun Routing.demo3(dao : TodoDAO) {
     get("/demo2") {
         call.respondHtmlTemplate(MulticolumnTemplate()) {
-            column1 {
-                for(x in dao.getTodos()) {
-                    +x.name
-                }
-            }
-            column2 {
-                for(x in dao.getTodos()) {
-                    +x.notes
-                }
-            }
+
         }
     }
 }

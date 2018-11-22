@@ -1,5 +1,6 @@
 package com.hagemajr.todo.templates
 
+import com.hagemajr.todo.models.Todo
 import io.ktor.html.*
 import kotlinx.html.HTML
 import kotlinx.html.*
@@ -7,24 +8,22 @@ import org.intellij.lang.annotations.Flow
 
 
 class MulticolumnTemplate(val main: MainTemplate = MainTemplate()) : Template<HTML> {
-    val column1 = Placeholder<FlowContent>()
-    val column2 = Placeholder<FlowContent>()
+
+    val todoList = listOf(
+        Todo(name = "Todo1", complete = false, notes = ""),
+        Todo(name = "Todo2", complete = false, notes = ""),
+        Todo(name = "Todo3", complete = false, notes = "")
+    )
+
     override fun HTML.apply() {
         insert(main) {
             header {
                 headerTitle { +"ToDo List"}
                 headerSubtitle { +"My Todo Implementation"}
             }
-            menu {
-                item { +"One" }
-                item { +"Two" }
-            }
-            content {
-                div("column") {
-                    insert(column1)
-                }
-                div("column") {
-                    insert(column2)
+            appBody {
+                todoItems{
+                    todos = todoList
                 }
             }
             footer {
@@ -36,9 +35,7 @@ class MulticolumnTemplate(val main: MainTemplate = MainTemplate()) : Template<HT
 
 class MainTemplate : Template<HTML> {
     val header = TemplatePlaceholder<HeaderTemplate>()
-    val content = Placeholder<HtmlBlockTag>()
     val appBody = TemplatePlaceholder<BodyTemplate>()
-    val menu = TemplatePlaceholder<MenuTemplate>()
     val footer = TemplatePlaceholder<FooterTemplate>()
     override fun HTML.apply() {
         head {
@@ -49,10 +46,6 @@ class MainTemplate : Template<HTML> {
             div(classes = "container") {
                 insert(HeaderTemplate(), header)
                 insert(BodyTemplate(), appBody)
-                h1 {
-                    insert(content)
-                }
-                insert(MenuTemplate(), menu)
                 insert(FooterTemplate(), footer)
             }
         }
@@ -81,12 +74,52 @@ class HeaderTemplate : Template<FlowContent> {
 }
 
 class BodyTemplate : Template<FlowContent>{
-    val inputTemplate = TemplatePlaceholder<InputTemplate>()
+    private val inputTemplate = TemplatePlaceholder<InputTemplate>()
+    val todoItems = TemplatePlaceholder<TodoItemListTemplate>()
     override fun FlowContent.apply(){
         div(classes = "columns is-centered"){
             div(classes = "column is-half"){
                 div(classes = "section"){
                     insert(InputTemplate(), inputTemplate)
+                    div(classes = "tabs is-centered"){
+                        ul{
+                            li(classes = "is-active"){
+                                a { +"Not Done" }
+                            }
+                            li{
+                                a { +"Done"}
+                            }
+                        }
+                    }
+                    insert(TodoItemListTemplate(), todoItems)
+                }
+            }
+        }
+    }
+}
+
+class TodoItemListTemplate : Template<FlowContent>{
+    var todos = listOf<Todo>()
+
+    override fun FlowContent.apply() {
+        todos.forEach {
+            div(classes = "box") {
+                div(classes = "field is-grouped") {
+                    p(classes = "control is-expanded") {
+                        label(classes = "label") {
+                            +it.name
+                        }
+                    }
+                    p(classes = "control") {
+                        a(classes = "button is-info") {
+                            +"Edit"
+                        }
+                    }
+                    p(classes = "control") {
+                        a(classes = "button is-danger") {
+                            +"Complete"
+                        }
+                    }
                 }
             }
         }
@@ -110,10 +143,6 @@ class InputTemplate : Template<FlowContent>{
     }
 }
 
-
-
-
-
 class FooterTemplate : Template<FlowContent>{
     val footerContent = Placeholder<HtmlBlockTag>()
     override fun FlowContent.apply(){
@@ -121,26 +150,6 @@ class FooterTemplate : Template<FlowContent>{
             div(classes = "content has-text-centered"){
                 p {
                     insert(footerContent)
-                }
-            }
-        }
-    }
-}
-
-
-class MenuTemplate : Template<FlowContent> {
-    val item = PlaceholderList<UL, FlowContent>()
-    override fun FlowContent.apply() {
-        if (!item.isEmpty()) {
-            ul {
-                each(item) {
-                    li {
-                        if (it.first) b {
-                            insert(it)
-                        } else {
-                            insert(it)
-                        }
-                    }
                 }
             }
         }
