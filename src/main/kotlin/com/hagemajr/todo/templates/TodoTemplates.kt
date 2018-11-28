@@ -16,9 +16,6 @@ class MulticolumnTemplate(val main: MainTemplate = MainTemplate()) : Template<HT
 
     override fun HTML.apply() {
         insert(main) {
-            header {
-                headerTitle = "Overridden title"
-            }
             appBody {
                 todoItems{
                     todos = todoList
@@ -33,7 +30,6 @@ class MulticolumnTemplate(val main: MainTemplate = MainTemplate()) : Template<HT
 }
 
 class MainTemplate : Template<HTML> {
-    val header = TemplatePlaceholder<HeaderTemplate>()
     val appBody = TemplatePlaceholder<BodyTemplate>()
     val footer = TemplatePlaceholder<FooterTemplate>()
     override fun HTML.apply() {
@@ -43,7 +39,7 @@ class MainTemplate : Template<HTML> {
         }
         body {
             div(classes = "container") {
-                insert(HeaderTemplate(), header)
+                header(headerTitle = "Overridden title")
                 insert(BodyTemplate(), appBody)
                 insert(FooterTemplate(), footer)
             }
@@ -51,35 +47,29 @@ class MainTemplate : Template<HTML> {
     }
 }
 
-class HeaderTemplate : Template<FlowContent> {
-    var headerTitle = "ToDo List"
-    var headerSubtitle = "My Todo Implementation"
-    override fun FlowContent.apply() {
-
-        section(classes = "hero is-info is-bold is-rounded") {
-            div(classes = "hero-body") {
-                div("container") {
-                    h1("title") {
-                        +headerTitle
-                    }
-                    h2("subtitle") {
-                        +headerSubtitle
-                    }
+fun DIV.header(headerTitle : String = "ToDo List", headerSubtitle :String = "My Todo Implementation"){
+    section(classes = "hero is-info is-bold is-rounded") {
+        div(classes = "hero-body") {
+            div("container") {
+                h1("title") {
+                    +headerTitle
+                }
+                h2("subtitle") {
+                    +headerSubtitle
                 }
             }
-
         }
+
     }
 }
 
 class BodyTemplate : Template<FlowContent>{
-    private val inputTemplate = TemplatePlaceholder<InputTemplate>()
     val todoItems = TemplatePlaceholder<TodoItemListTemplate>()
     override fun FlowContent.apply(){
         div(classes = "columns is-centered"){
             div(classes = "column is-half"){
                 div(classes = "section"){
-                    insert(InputTemplate(), inputTemplate)
+                    inputTemplate()
                     div(classes = "tabs is-centered"){
                         ul{
                             li(classes = "is-active"){
@@ -97,46 +87,50 @@ class BodyTemplate : Template<FlowContent>{
     }
 }
 
+fun DIV.todoItem(block : LABEL.() -> Unit) {
+    div(classes = "field is-grouped") {
+        p(classes = "control is-expanded") {
+            label(classes = "label") {
+                block()
+            }
+        }
+        p(classes = "control") {
+            a(classes = "button is-info") {
+                +"Edit"
+            }
+        }
+        p(classes = "control") {
+            a(classes = "button is-danger") {
+                +"Complete"
+            }
+        }
+    }
+}
+
 class TodoItemListTemplate : Template<FlowContent>{
     var todos = listOf<Todo>()
 
     override fun FlowContent.apply() {
         todos.forEach {
             div(classes = "box") {
-                div(classes = "field is-grouped") {
-                    p(classes = "control is-expanded") {
-                        label(classes = "label") {
-                            +it.name
-                        }
-                    }
-                    p(classes = "control") {
-                        a(classes = "button is-info") {
-                            +"Edit"
-                        }
-                    }
-                    p(classes = "control") {
-                        a(classes = "button is-danger") {
-                            +"Complete"
-                        }
-                    }
+                todoItem {
+                    +it.name
                 }
             }
         }
     }
 }
 
-class InputTemplate : Template<FlowContent>{
-    override fun FlowContent.apply(){
-        div(classes = "field has-addons"){
-            p(classes = "control is-expanded"){
-                input(classes = "input", type = InputType.text){
-                    placeholder = "What do you need to do?"
-                }
+fun DIV.inputTemplate() {
+    div(classes = "field has-addons"){
+        p(classes = "control is-expanded"){
+            input(classes = "input", type = InputType.text){
+                placeholder = "What do you need to do?"
             }
-            p(classes = "control"){
-                a(classes = "button is-info"){
-                    +"Add Todo"
-                }
+        }
+        p(classes = "control"){
+            a(classes = "button is-info"){
+                +"Add Todo"
             }
         }
     }
